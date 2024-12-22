@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ZBBSD0010</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: ZBBSD0010</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  납품처 엑셀 업로드 프로그램</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Report ZBBSD0010</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&    [SD]</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&    개발자                 : CL2 KDT-B-13 윤소영</font>
+<font color ="#0000FF">*&    프로그램 개요           : 납품처 MASTER 엑셀 업로드 관리 프로그램</font>
+<font color ="#0000FF">*&    개발 시작일            : 2024.10.29</font>
+<font color ="#0000FF">*&    개발 완료일            : 2024.10.30</font>
+<font color ="#0000FF">*&    개발 상태             : 개발완료</font>
+<font color ="#0000FF">*&    단위테스트 여부</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+
+ include <a href ="zbbsd0010top.html">ZBBSD0010TOP</a>.    " Global Data
+ include <a href ="zbbsd0010c01.html">ZBBSD0010C01</a>.    " Global Data
+ include <a href ="zbbsd0010sel.html">ZBBSD0010SEL</a>.    " Global Data
+ include <a href ="zbbsd0010o01.html">ZBBSD0010O01</a>.  " PBO-Modules
+ include <a href ="zbbsd0010i01.html">ZBBSD0010I01</a>.  " PAI-Modules
+ include <a href ="zbbsd0010f01.html">ZBBSD0010F01</a>.  " FORM-Routines
+
+
+ INITIALIZATION.
+   " Selection Screen 에서 앱툴바에 버튼을 추가할 때 아이콘을 다루고 싶을 때 사용
+   DATA LS_DYNTXT TYPE SMP_DYNTXT.
+   LS_DYNTXT-ICON_ID = ICON_XLS. " Icon 은 se38에서 showicon 프로그램을 실행해서 찾을 수 있다.
+   LS_DYNTXT-ICON_TEXT = '양식 다운로드'.
+   SSCRFIELDS-FUNCTXT_01 = LS_DYNTXT.
+
+ AT SELECTION-SCREEN.
+   " Selection Screen의 앱툴바에 추가된 버튼은
+   " FC01 부터 FC05 까지 사전에 정의가 되어 있다.
+   CASE SSCRFIELDS-UCOMM.
+     WHEN 'FC01'.
+       PERFORM ZBSD_CON_POPUP USING '다운로드' CHANGING LV_ANSWER.
+       CHECK LV_ANSWER = '1'.
+
+       PERFORM EXCEL_TEMPLATE USING SY-REPID.
+   ENDCASE.
+
+ AT SELECTION-SCREEN OUTPUT.
+
+ AT SELECTION-SCREEN ON VALUE-REQUEST FOR PA_FILE.
+   PERFORM GET_FILENM CHANGING PA_FILE.
+
+ START-OF-SELECTION.
+   IF PA_FILE = 'C:\'.     " 경로 지정 없이 넘긴다면
+     MESSAGE I022 DISPLAY LIKE 'E'.
+     RETURN.
+   ENDIF.
+   PERFORM UPLOAD_EXCEL.         " 엑셀파일을 읽어온다.
+   CALL SCREEN 100.
+
+<font color ="#0000FF">*GUI Texts</font>
+<font color ="#0000FF">*----------------------------------------------------------</font>
+<font color ="#0000FF">* T100 --&gt; 엑셀 데이터 확인</font>
+
+
+<font color ="#0000FF">*Messages</font>
+<font color ="#0000FF">*----------------------------------------------------------</font>
+<font color ="#0000FF">*</font>
+<font color ="#0000FF">* Message class: Hard coded</font>
+<font color ="#0000FF">*   엑셀 파일 경로 또는 데이터 범위가 잘못되었습니다.</font>
+<font color ="#0000FF">*</font>
+<font color ="#0000FF">* Message class: ZCOMMON_MSG</font>
+<font color ="#0000FF">*022   업로드할 Excel 파일을 선택해주세요.</font>
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 754
+</font>
+</body>
+</html>

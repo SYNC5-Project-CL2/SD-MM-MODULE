@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ZBBMM0050F01</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: ZBBMM0050F01</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  Include ZBBMM0050F01</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Include          ZBBMM0050F01</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form SCREEN_OUTPUT</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM SCREEN_OUTPUT .
+  LOOP AT SCREEN.
+    IF SCREEN-NAME EQ 'PA_NEXT'.
+      SCREEN-INPUT = '0'.
+    ENDIF.
+    MODIFY SCREEN.
+  ENDLOOP.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form DEP_SYSTEM</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM DEP_SYSTEM.
+<font color ="#0000FF">*  검수내역에서 유통기한 확인 후 자재코드 확인, 자재현황 테이블</font>
+<font color ="#0000FF">*  재고 수량 차감</font>
+  DATA : LS_ZTBPP0040 TYPE ZTBPP0040,
+         LT_ZTBPP0040 LIKE TABLE OF LS_ZTBPP0040.
+
+  DATA : LS_ZTBMM0030 TYPE ZTBMM0030,
+         LT_ZTBMM0030 LIKE TABLE OF LS_ZTBMM0030.
+
+  SELECT * FROM ZTBMM0030
+    INTO CORRESPONDING FIELDS OF TABLE LT_ZTBMM0030.
+
+  SELECT * FROM ZTBPP0040
+    INTO CORRESPONDING FIELDS OF TABLE LT_ZTBPP0040
+    WHERE EXDATE = SY-DATUM.
+
+  LOOP AT LT_ZTBPP0040 INTO LS_ZTBPP0040.
+<font color ="#0000FF">*    유통기한이 오늘까지라면 삭제</font>
+    UPDATE ZTBPP0040
+       SET DELFLG = 'X'
+     WHERE WHCODE = LS_ZTBPP0040-WHCODE
+       AND PORDNUM = LS_ZTBPP0040-PORDNUM
+       AND MATCODE = LS_ZTBPP0040-MATCODE.
+
+<font color ="#0000FF">*    자재현황 테이블 확인 후 완제품 수량만큼만 재고현황 현재수량 차감</font>
+    LOOP AT LT_ZTBMM0030 INTO LS_ZTBMM0030.
+      UPDATE ZTBMM0030
+         SET CURRSTOCK = CURRSTOCK - LS_ZTBPP0040-PRDQUAN
+       WHERE WHCODE = LS_ZTBPP0040-WHCODE
+         AND MATCODE = LS_ZTBPP0040-MATCODE.
+    ENDLOOP.
+  ENDLOOP.
+ENDFORM.
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 754
+</font>
+</body>
+</html>

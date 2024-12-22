@@ -1,0 +1,463 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ZBRSD0060F01</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: ZBRSD0060F01</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  Include ZBRSD0060F01</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Include          ZBRSD0060F01</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form GET_DATA</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM GET_DATA USING P_TYPE.
+
+  DATA : RT_MAT    TYPE RANGE OF ZTBSD0080-MATCODE,
+         RT_CTRY   TYPE RANGE OF ZTBSD0080-CTRYCODE,
+         LV_DELFLG TYPE CHAR1,
+         LV_WHERE  TYPE STRING.
+
+  IF PA_MAT IS NOT INITIAL.
+    RT_MAT = VALUE #( ( SIGN = 'I'
+                        OPTION = 'EQ'
+                        LOW  = PA_MAT ) ).
+  ENDIF.
+
+  IF PA_CTRY IS NOT INITIAL.
+    RT_CTRY = VALUE #( ( SIGN = 'I'
+                         OPTION = 'EQ'
+                         LOW  = PA_CTRY ) ).
+  ENDIF.
+
+<font color ="#0000FF">*  라디오 버튼 적용시키기</font>
+  LV_WHERE = |A~DELFLG &lt;&gt; 'X'|.
+
+  IF ALL = 'X'.
+    LV_WHERE = |A~DELFLG LIKE '%'|.
+  ELSEIF DELETED = 'X'.
+    LV_WHERE = |A~DELFLG = 'X'|.
+  ENDIF.
+
+  IF P_TYPE &lt;&gt; 'INIT'.
+    REFRESH GT_ALV_ZTBSD0080.
+    APPEND GS_ALV_ZTBSD0080 TO GT_ALV_ZTBSD0080.
+  ELSE.
+    SELECT A~MANDT, A~MATCODE,A~CTRYCODE,A~PRICE,A~CURRENCY,A~DELFLG,A~STAMP_DATE_F,
+           A~STAMP_TIME_F,A~STAMP_USER_F,A~STAMP_DATE_L,A~STAMP_TIME_L,A~STAMP_USER_L, C~CTRYNAME, B~MATNAME
+    FROM ZTBSD0080 AS A JOIN ZTBMM1011 AS B ON A~MATCODE = B~MATCODE
+    LEFT JOIN ZTBSD1040 AS C ON A~CTRYCODE = C~CTRYCODE
+    INTO CORRESPONDING FIELDS OF TABLE @GT_ALV_ZTBSD0080
+    WHERE A~MATCODE IN @RT_MAT
+    AND A~CTRYCODE IN @RT_CTRY
+    AND (LV_WHERE)
+    ORDER BY A~MATCODE, A~CTRYCODE.
+  ENDIF.
+
+
+
+<font color ="#0000FF">* 담당자명을 넣기 위해서</font>
+  REFRESH GT_ZTBSD1030.
+  SELECT * FROM ZTBSD1030 INTO TABLE GT_ZTBSD1030.
+
+  LOOP AT GT_ALV_ZTBSD0080 INTO GS_ALV_ZTBSD0080.
+    READ TABLE GT_ZTBSD1030 INTO DATA(LS_NAME) WITH KEY EMPID = GS_ALV_ZTBSD0080-STAMP_USER_F.
+    GS_ALV_ZTBSD0080-EMPNAME_F = LS_NAME-EMPNAME.
+    CLEAR LS_NAME.
+    READ TABLE GT_ZTBSD1030 INTO DATA(LS_NAME2) WITH KEY EMPID = GS_ALV_ZTBSD0080-STAMP_USER_L.
+    GS_ALV_ZTBSD0080-EMPNAME_L = LS_NAME2-EMPNAME.
+    CLEAR LS_NAME2.
+    MODIFY GT_ALV_ZTBSD0080 FROM GS_ALV_ZTBSD0080.
+  ENDLOOP.
+
+  PERFORM ERROR USING '조회'.
+  CLEAR GS_ALV_ZTBSD0080.
+
+  IF GO_ALV IS NOT INITIAL.
+    PERFORM ALV_REFRESH.
+  ENDIF.
+
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form SET_LAYOUT_0100</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM SET_LAYOUT_0100 .
+  GS_LAYOUT-ZEBRA = 'X'.
+  GS_LAYOUT-CWIDTH_OPT = 'A'.
+  GS_LAYOUT-GRID_TITLE = '완제품판매가 조회'.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form SET_ALV_FIELDCAT_0100</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM SET_ALV_FIELDCAT_0100 .
+  DATA: LS_FCAT TYPE LVC_S_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'MATCODE'.
+  LS_FCAT-COLTEXT   = '자재번호'.
+  LS_FCAT-COL_POS = 1.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'MATNAME'.
+  LS_FCAT-COLTEXT   = '자재명'.
+  LS_FCAT-COL_POS = 2.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'CTRYCODE'.
+  LS_FCAT-COLTEXT   = '국가코드'.
+  LS_FCAT-COL_POS = 3.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'CTRYNAME'.
+  LS_FCAT-COLTEXT   = '국가명'.
+  LS_FCAT-COL_POS = 4.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'PRICE'.
+  LS_FCAT-REF_TABLE = 'ZTBSD0080'.
+  LS_FCAT-REF_FIELD = 'CURRENCY'.
+  LS_FCAT-CFIELDNAME = 'WAERS'.
+  LS_FCAT-COLTEXT   = '완제품 단가'.
+  LS_FCAT-COL_POS = 5.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'CURRENCY'.
+  LS_FCAT-COLTEXT   = '화폐단위'.
+  LS_FCAT-COL_POS = 6.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'DELFLG'.
+  LS_FCAT-COLTEXT   = '삭제플래그'.
+  LS_FCAT-CHECKBOX  = 'X'.
+  LS_FCAT-COL_POS = 7.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_DATE_F'.
+  LS_FCAT-COLTEXT   = '최초 생성일'.
+  LS_FCAT-COL_POS = 8.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_TIME_F'.
+  LS_FCAT-COLTEXT   = '최초 생성시간'.
+  LS_FCAT-COL_POS = 9.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_USER_F'.
+  LS_FCAT-COLTEXT   = '최초 생성자'.
+  LS_FCAT-COL_POS = 10.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'EMPNAME_F'.
+  LS_FCAT-COLTEXT   = '담당자명'.
+  LS_FCAT-COL_POS = 11.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_DATE_L'.
+  LS_FCAT-COLTEXT   = '최종 수정일'.
+  LS_FCAT-COL_POS = 12.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_TIME_L'.
+  LS_FCAT-COLTEXT   = '최종 수정시간'.
+  LS_FCAT-COL_POS = 13.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'STAMP_USER_L'.
+  LS_FCAT-COLTEXT   = '최종 수정자'.
+  LS_FCAT-COL_POS = 14.
+  APPEND LS_FCAT TO GT_FCAT.
+
+  CLEAR LS_FCAT.
+  LS_FCAT-FIELDNAME = 'EMPNAME_L'.
+  LS_FCAT-COLTEXT   = '담당자명'.
+  LS_FCAT-COL_POS = 15.
+  APPEND LS_FCAT TO GT_FCAT.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form ERROR</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      --&gt; P_</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM ERROR USING P_VALUE.
+  IF SY-SUBRC &lt;&gt; 0.
+    MESSAGE S094 DISPLAY LIKE 'E' WITH P_VALUE.
+    RETURN.
+  ELSE.
+    MESSAGE S095 DISPLAY LIKE 'S' WITH P_VALUE.
+  ENDIF.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form CREATE</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM CREATE.
+
+<font color ="#0000FF">*  생성해보자</font>
+  MOVE-CORRESPONDING ZSSD0080 TO GS_ALV_ZTBSD0080.
+  GS_ALV_ZTBSD0080-PRICE = PRICE.
+
+  PERFORM GET_EMPID.
+  GS_ALV_ZTBSD0080-DELFLG = ''.
+
+<font color ="#0000FF">*  만약에 생성이면 최종 생성 시간을 , 아니면 수정 시간을 넣어야 한다</font>
+  SELECT SINGLE *
+    FROM ZTBSD0080 AS A
+    WHERE A~MATCODE = @GS_ALV_ZTBSD0080-MATCODE
+      AND A~CTRYCODE = @GS_ALV_ZTBSD0080-CTRYCODE
+    INTO @DATA(LT_DATA).
+
+
+  IF LT_DATA IS INITIAL.
+    GS_ALV_ZTBSD0080 = VALUE #( BASE GS_ALV_ZTBSD0080 STAMP_USER_F = GS_ZTBSD1030-EMPID
+                                                      STAMP_DATE_F = SY-DATUM
+                                                      STAMP_TIME_F = SY-UZEIT ).
+  ELSE. " 최종생성일도 같이 지워져서 넣어버림
+    GS_ALV_ZTBSD0080 = VALUE #( BASE GS_ALV_ZTBSD0080 STAMP_USER_F = LT_DATA-STAMP_USER_F
+                                                      STAMP_DATE_F = LT_DATA-STAMP_DATE_F
+                                                      STAMP_TIME_F = LT_DATA-STAMP_TIME_F
+                                                      STAMP_USER_L = GS_ZTBSD1030-EMPID
+                                                      STAMP_DATE_L = SY-DATUM
+                                                      STAMP_TIME_L = SY-UZEIT ).
+  ENDIF.
+
+
+  DATA: EXTERNAL LIKE BAPICURR-BAPICURR.
+  EXTERNAL = PRICE.
+  IF ZSSD0080-CURRENCY = 'KRW'.
+    PERFORM CAL_CURR CHANGING EXTERNAL.
+    GS_ALV_ZTBSD0080-PRICE = EXTERNAL.
+  ENDIF.
+
+  MOVE-CORRESPONDING GS_ALV_ZTBSD0080 TO ZTBSD0080.
+
+  MODIFY ZTBSD0080 FROM ZTBSD0080.
+  PERFORM ALV_REFRESH.
+
+<font color ="#0000FF">*  생성 된 데이터만 보여주자</font>
+  PERFORM GET_DATA USING 'CREATE'.
+
+  PERFORM ERROR USING '생성'.
+  CLEAR GS_ALV_ZTBSD0080.
+
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form GET_EMPID</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM GET_EMPID .
+  SELECT * FROM ZTBSD1030 INTO TABLE GT_ZTBSD1030.
+  READ TABLE GT_ZTBSD1030 INTO GS_ZTBSD1030 WITH KEY LOGID = SY-UNAME.
+  PERFORM ERROR USING '조회'.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form CON_POPUP</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      --&gt; P_</font>
+<font color ="#0000FF">*&      &lt;-- LV_ANSWER</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM CON_POPUP USING P_VALUE CHANGING LV_ANSWER.
+
+  DATA DOMAIN TYPE CHAR10 VALUE '완제품 판매가'.
+
+  CALL FUNCTION 'POPUP_TO_CONFIRM'
+    EXPORTING
+      TITLEBAR              = | { DOMAIN } 데이터 { P_VALUE  } |
+      TEXT_QUESTION         = | 해당 { DOMAIN } 데이터를 { P_VALUE  }하시겠습니까? |
+      TEXT_BUTTON_1         = 'YES'
+      ICON_BUTTON_1         = 'ICON_OKAY'
+      TEXT_BUTTON_2         = 'NO'
+      ICON_BUTTON_2         = 'ICON_CANCEL'
+      DEFAULT_BUTTON        = '1'
+      DISPLAY_CANCEL_BUTTON = ''
+    IMPORTING
+      ANSWER                = LV_ANSWER.
+
+  PERFORM ERROR USING 'POPUP'.
+
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form CHECK_CREATE</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM CHECK_CREATE .
+<font color ="#0000FF">*  생성 하겠냐는 컨펌창 띄우기</font>
+  PERFORM CON_POPUP USING '생성' CHANGING LV_ANSWER.
+  CHECK LV_ANSWER = '1'.
+  CALL SCREEN 110
+       STARTING AT 10 10.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form ALV_REFRESH</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM ALV_REFRESH .
+  CALL METHOD GO_ALV-&gt;REFRESH_TABLE_DISPLAY
+    EXCEPTIONS
+      FINISHED = 1
+      OTHERS   = 2.
+  IF SY-SUBRC &lt;&gt; 0.
+    MESSAGE S016 DISPLAY LIKE 'E'.
+    RETURN.
+  ENDIF.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form DELETE</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM CHECK_ROW USING P_VALUE.
+  CALL METHOD GO_ALV-&gt;GET_SELECTED_ROWS
+    IMPORTING
+      ET_ROW_NO = GT_ROW.
+
+<font color ="#0000FF">* 만약 행을 선택하지 않고 삭제 버튼을 누른다면 경고창</font>
+  IF GT_ROW IS INITIAL.
+    MESSAGE S008 DISPLAY LIKE 'E'.
+    RETURN.
+  ENDIF.
+
+  READ TABLE GT_ROW INTO GS_ROW INDEX 1.
+  READ TABLE GT_ALV_ZTBSD0080 INTO GS_ALV_ZTBSD0080 INDEX GS_ROW-ROW_ID.
+
+<font color ="#0000FF">* 만약 이미 삭제된 데이터라면 RETURN.</font>
+  IF GS_ALV_ZTBSD0080-DELFLG = 'X'.
+    MESSAGE S014 DISPLAY LIKE 'E'.
+    RETURN.
+  ENDIF.
+
+<font color ="#0000FF">*  삭제/수정 하겠냐는 컨펌 팝업창 생성</font>
+  PERFORM CON_POPUP USING P_VALUE CHANGING LV_ANSWER.
+  CHECK LV_ANSWER = '1'.
+
+  IF P_VALUE = '수정'.
+    MOVE-CORRESPONDING GS_ALV_ZTBSD0080 TO ZSSD0080.
+    CALL SCREEN 120
+      STARTING AT 10 10.
+  ELSE.
+    PERFORM UPDATE USING P_VALUE.
+  ENDIF.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form UPDATE</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      --&gt; P_</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM UPDATE USING P_VALUE.
+
+  IF P_VALUE = '삭제'.
+    GS_ALV_ZTBSD0080-DELFLG = 'X'.
+  ELSE.
+<font color ="#0000FF">*   정규표현식으로 단가 확인하기</font>
+    DATA: EXTERNAL   LIKE BAPICURR-BAPICURR,
+          LV_SUCCESS TYPE C,
+          V_PATTERN  TYPE STRING.
+
+    V_PATTERN = '[0-9]'.
+
+    DATA(LO_REGEX) = NEW CL_ABAP_REGEX( PATTERN = V_PATTERN ).
+    DATA(MATCH) = LO_REGEX-&gt;CREATE_MATCHER( TEXT = PRICE ).
+
+    LV_SUCCESS = MATCH-&gt;MATCH( ).   " 정상이면 X , 비정상이면 INITT
+
+    IF LV_SUCCESS &lt;&gt; 'X'.
+      MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '002' WITH '판매단가'.
+      MESSAGE S100 DISPLAY LIKE 'E' WITH 'REGEX'.
+      RETURN.
+    ENDIF.
+
+<font color ="#0000FF">*    다 통과되면 시작</font>
+    EXTERNAL = PRICE.
+    IF ZSSD0080-CURRENCY = 'KRW'.
+      PERFORM CAL_CURR CHANGING EXTERNAL.
+    ENDIF.
+    GS_ALV_ZTBSD0080-PRICE = EXTERNAL.
+  ENDIF.
+
+  MOVE-CORRESPONDING GS_ALV_ZTBSD0080 TO ZTBSD0080.
+  MODIFY ZTBSD0080 FROM ZTBSD0080.
+  PERFORM ALV_REFRESH.
+  PERFORM GET_DATA USING 'UPDATE'.
+  PERFORM ERROR USING P_VALUE.
+  CLEAR GS_ALV_ZTBSD0080.
+ENDFORM.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form CAL_CURR</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      &lt;-- EXTERNAL</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM CAL_CURR CHANGING EXTERNAL.
+  CALL FUNCTION 'BAPI_CURRENCY_CONV_TO_INTERNAL'
+    EXPORTING
+      CURRENCY             = 'KRW'   "한국 통화로
+      AMOUNT_EXTERNAL      = EXTERNAL
+      MAX_NUMBER_OF_DIGITS = 15
+    IMPORTING
+      AMOUNT_INTERNAL      = EXTERNAL.
+
+  PERFORM ERROR USING 'CURRENCY_CONV'.
+ENDFORM.
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 754
+</font>
+</body>
+</html>

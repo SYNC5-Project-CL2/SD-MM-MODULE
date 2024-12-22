@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ZBRMM0010I01</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: ZBRMM0010I01</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  Include ZBRMM0010I01</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Include          ZBRMM0010I01</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      Module  EXIT  INPUT</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*       text</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+MODULE EXIT INPUT.
+  CASE OK_CODE.
+    WHEN 'EXIT'.
+      LEAVE PROGRAM.
+    WHEN 'CANCEL' OR 'BACK'.
+      LEAVE TO SCREEN 0.
+  ENDCASE.
+ENDMODULE.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      Module  USER_COMMAND_0100  INPUT</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*       text</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+MODULE USER_COMMAND_0100 INPUT.
+  CASE OK_CODE.
+    WHEN 'MOVE_BTN'.
+      PERFORM MOVE_BTN. " 재고이동 버튼 클릭
+    WHEN 'RESET'.
+      PERFORM RESET.
+  ENDCASE.
+ENDMODULE.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&      Module  CHECK_MATCODE  INPUT</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*       text</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+MODULE CHECK_MATCODE INPUT.
+
+  IF ZSBMM0010-MATCODE IS INITIAL.
+    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '000'.   " 필수값
+    RETURN.
+  ENDIF.
+
+  PERFORM SCREEN_AMOUNT.
+
+ENDMODULE.
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Form SCREEN_AMOUNT</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& --&gt;  p1        text</font>
+<font color ="#0000FF">*& &lt;--  p2        text</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+FORM SCREEN_AMOUNT .
+
+<font color ="#0000FF">*  창고명 : SUB_WHCODE1 , SUB_WHCODE2 가 있고</font>
+  SELECT SINGLE A~CURRSTOCK
+    FROM ZTBMM0030 AS A
+    WHERE A~MATCODE = @ZSBMM0010-MATCODE
+      AND A~WHCODE = @ZSBMM0011-SUB_WHCODE1
+    INTO @DATA(LS_STOCK).
+
+  SELECT SINGLE A~CURRSTOCK
+    FROM ZTBMM0030 AS A
+    WHERE A~MATCODE = @ZSBMM0010-MATCODE
+      AND A~WHCODE = @ZSBMM0011-SUB_WHCODE2
+    INTO @DATA(LS_STOCK2).
+
+  SELECT SINGLE A~CURRSTOCK
+    FROM ZTBMM0030 AS A
+    WHERE A~MATCODE = @ZSBMM0010-MATCODE
+      AND A~WHCODE = @ZSBMM0011-MAIN_WHCODE
+    INTO @DATA(LS_STOCK3).
+
+<font color ="#0000FF">* 판매오더 진행상태가 0 이고 ( DB View ) 1창고 데이터 들고오기 자재코드와 맞는거</font>
+<font color ="#0000FF">* 전부 SUM</font>
+  SELECT SUM( A~AMOUNTPRD ) AS AMOUNT
+    FROM ZVBMM0011 AS A
+    WHERE A~WHCODE = @ZSBMM0011-SUB_WHCODE1
+      AND A~MATCODE = @ZSBMM0010-MATCODE
+    INTO @DATA(LT_SD0030).
+
+
+  SELECT SINGLE SUM( A~AMOUNTPRD ) AS AMOUNT
+    FROM ZVBMM0011 AS A
+    WHERE A~WHCODE = @ZSBMM0011-SUB_WHCODE2
+      AND A~MATCODE = @ZSBMM0010-MATCODE
+    INTO @DATA(LT2_SD0030).
+
+  SELECT SINGLE SUM( A~AMOUNTPRD ) AS AMOUNT
+    FROM ZVBMM0011 AS A
+    WHERE A~WHCODE = @ZSBMM0011-MAIN_WHCODE
+      AND A~MATCODE = @ZSBMM0010-MATCODE
+    INTO @DATA(LT3_SD0030).
+
+<font color ="#0000FF">*  값이 음수로 나올 경우 에러 떨어짐</font>
+  IF LS_STOCK &lt; LT_SD0030 OR LS_STOCK2 &lt; LT2_SD0030 OR LS_STOCK3 &lt; LT3_SD0030.
+    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '121'.   " 범위 초과
+    RETURN.
+  ENDIF.
+
+  ZSBMM0011 = VALUE #( BASE ZSBMM0011 SUB_AMOUNT1 = LS_STOCK - LT_SD0030
+                                      SUB_AMOUNT2 = LS_STOCK2 - LT2_SD0030
+                                      MAIN_AMOUNT = LS_STOCK3 - LT3_SD0030 ).
+ENDFORM.
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 754
+</font>
+</body>
+</html>
