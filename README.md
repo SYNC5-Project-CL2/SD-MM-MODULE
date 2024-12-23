@@ -1,3 +1,5 @@
+[전체 영상](https://www.youtube.com/watch?v=-P4DSogik6M)
+
 # [MM] 재고 이동 프로그램
 
 ![](./GIF/재고이동프로그램.gif)
