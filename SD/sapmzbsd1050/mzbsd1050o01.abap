@@ -40,7 +40,7 @@
 
    CALL METHOD GO_ALV->SET_TABLE_FOR_FIRST_DISPLAY
     EXPORTING
- \*    Local Structure는 올 수 없다.
+*    Local Structure는 올 수 없다.
      I_STRUCTURE_NAME = 'ZSBSD50'      " Internal Output Table Structure Name
      IS_LAYOUT    = GS_LAYOUT
     CHANGING

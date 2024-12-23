@@ -93,7 +93,7 @@
  FORM SET_ALV_DISPLAY_0100.
   CALL METHOD GO_ALV->SET_TABLE_FOR_FIRST_DISPLAY
    EXPORTING
- \*   Local Structure는 올 수 없다.
+ *   Local Structure는 올 수 없다.
     I_STRUCTURE_NAME = 'ZTBMM0030'
     IS_LAYOUT    = GS_LAYOUT
    CHANGING
@@ -125,7 +125,7 @@
  *&   --> P_
  *&---------------------------------------------------------------------*
  FORM GET_DATA_HEADER.
- \* 재고현황 리스트 가져오기
+ * 재고현황 리스트 가져오기
   SELECT A~WHCODE, B~WHNAME, A~MATCODE, C~MATNAME, A~MATTYPE,
      A~CURRSTOCK, A~UNITCODE1, A~SAFESTOCK, A~UNITCODE2
    FROM ZTBMM0030 AS A
@@ -137,7 +137,7 @@
 
   PERFORM SUBRC USING '조회'.
 
- \* Fixed Value 가져오기
+ * Fixed Value 가져오기
   PERFORM GET_DOMAIN_VAL TABLES GT_FX_MATTYPE USING 'ZDB_MATTYPE'. " 자재유형
 
   LOOP AT GT_ALV_ZTBMM0030 INTO GS_ALV_ZTBMM0030.
@@ -145,12 +145,12 @@
    DATA : LS_STYLE TYPE LVC_S_STYL,
       LS_STATUS TYPE CHAR1.
 
- \*  제품유형 타입 Fixed Value 가져오기
+ *  제품유형 타입 Fixed Value 가져오기
    LS_STATUS = GS_ALV_ZTBMM0030-MATTYPE.
    READ TABLE GT_FX_MATTYPE WITH KEY DOMVALUE_L = LS_STATUS INTO DATA(LS_SOSTATUS).
    GS_ALV_ZTBMM0030-MATTYPE_TXT = LS_SOSTATUS-DDTEXT.
 
- \*  창고별 제품 수량 잘 합산해서 가져오기 (DB View 사용)
+ *  창고별 제품 수량 잘 합산해서 가져오기 (DB View 사용)
    SELECT SUM( A~AMOUNTPRD ) AS AMOUNT
     FROM ZVBMM0011 AS A
     WHERE A~WHCODE = @GS_ALV_ZTBMM0030-WHCODE
@@ -166,7 +166,7 @@
 
   ENDLOOP.
 
- \* 일단 서브 창고 가져오기
+ * 일단 서브 창고 가져오기
   SELECT DISTINCT A~WHCODE, A~WHNAME
    FROM ZTBMM1030 AS A
    JOIN ZTBMM0030 AS B ON A~WHCODE = B~WHCODE
@@ -183,7 +183,7 @@
   READ TABLE LT_WHCODE INTO DATA(LS_WHCODE) INDEX 1.
   READ TABLE LT_WHCODE INTO DATA(LS_WHCODE2) INDEX 2.
 
- \* 3개의 창고중 메인창고는 지우고 서브창고 두개만 가지고 와서 창고 이름과 매칭
+ * 3개의 창고중 메인창고는 지우고 서브창고 두개만 가지고 와서 창고 이름과 매칭
   ZSBMM0011 = VALUE #( SUB_WHCODE1 = LS_WHCODE-WHCODE
             SUB_WHNAME1 = LS_WHCODE-WHNAME
             SUB_WHCODE2 = LS_WHCODE2-WHCODE
@@ -313,7 +313,7 @@
  FORM SET_ALV_DISPLAY2_0100 .
   CALL METHOD GO_ALV2->SET_TABLE_FOR_FIRST_DISPLAY
    EXPORTING
- \*    Local Structure는 올 수 없다.
+ *    Local Structure는 올 수 없다.
     I_STRUCTURE_NAME = 'ZTBMM0030'
     IS_LAYOUT    = GS_LAYOUT2
    CHANGING
@@ -346,17 +346,17 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM MOVE_BTN. " 재고이동 버튼 클릭
- \* 재고이동 버튼을 눌렀을 때, 수량이 잘 맞는지 체크 필요함
- \* 입고 : ZSBMM0010-DEL_WH , 출고 : ZSBMM0010-STO_WH
- \* 자재번호 : ZSBMM0010-MATCODE, 입력수량 : PRICE
- \* UPDATE : ZBBMM0030
+ * 재고이동 버튼을 눌렀을 때, 수량이 잘 맞는지 체크 필요함
+ * 입고 : ZSBMM0010-DEL_WH , 출고 : ZSBMM0010-STO_WH
+ * 자재번호 : ZSBMM0010-MATCODE, 입력수량 : PRICE
+ * UPDATE : ZBBMM0030
 
   IF ZSBMM0010-DEL_WH = ZSBMM0010-STO_WH.
    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '117'. " 입/출고 창고가 같다면 오류
    RETURN.
   ENDIF.
 
- \* 2. 출고 창고 수량 체크
+ * 2. 출고 창고 수량 체크
   READ TABLE GT_ALV_ZTBMM0030
    WITH KEY WHCODE = ZSBMM0010-STO_WH MATCODE = ZSBMM0010-MATCODE
    INTO GS_ALV_ZTBMM0030.
@@ -366,13 +366,13 @@
    RETURN.
   ENDIF.
 
- \* 3. 예외 처리
+ * 3. 예외 처리
   IF SCREEN_AMOUNT > GS_ALV_ZTBMM0030-CURRSTOCK.  " 입력 수량 > 출고 창고 수량
    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '115'. " 출고 수량 많아요
    RETURN.
   ENDIF.
 
- \* 재고이동 하겠냐는 팝업창
+ * 재고이동 하겠냐는 팝업창
   DATA LV_ANSWER TYPE CHAR1.
   PERFORM CON_POPUP CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
@@ -380,14 +380,14 @@
   DATA AMOUNT TYPE ZTBMM0030-CURRSTOCK.
   AMOUNT = SCREEN_AMOUNT.
 
- \* 출고 재고수량 업데이트
+ * 출고 재고수량 업데이트
   UPDATE ZTBMM0030
    SET CURRSTOCK = CURRSTOCK - AMOUNT
    WHERE MATCODE = ZSBMM0010-MATCODE
     AND WHCODE = ZSBMM0010-STO_WH
     AND MATTYPE = 'C'.
 
- \* 입고 채고수량 업데이트
+ * 입고 채고수량 업데이트
   UPDATE ZTBMM0030
    SET CURRSTOCK = CURRSTOCK + AMOUNT
    WHERE MATCODE = ZSBMM0010-MATCODE
@@ -396,7 +396,7 @@
 
   MESSAGE S119 DISPLAY LIKE 'S'.
 
- \* 내역 저장 후 화면 새로고침.
+ * 내역 저장 후 화면 새로고침.
   PERFORM GET_DATA_HEADER_REFRESH.
   PERFORM ALV_REFRESH.
  ENDFORM.
@@ -503,14 +503,14 @@
 
   CURRSTOCK = SCREEN_AMOUNT.
 
- \* 재고현황 리스트 가져오기
+ * 재고현황 리스트 가져오기
   LOOP AT GT_ALV_ZTBMM0030 INTO GS_ALV_ZTBMM0030.
 
    CLEAR : GS_ALV_ZTBMM0030-IT_COL.
 
    DATA : LS_SCOL  TYPE LVC_S_SCOL. " 셀에 컬러 넣기
 
- \*  바뀐 수량 다시 잘 가져와라
+ *  바뀐 수량 다시 잘 가져와라
    IF GS_ALV_ZTBMM0030-WHCODE = ZSBMM0010-STO_WH AND GS_ALV_ZTBMM0030-MATCODE = ZSBMM0010-MATCODE.
 
     LS_SCOL = VALUE #( FNAME = 'CURRSTOCK'

@@ -4,7 +4,7 @@
  *&---------------------------------------------------------------------*
  *&   Module EXIT INPUT
  *&---------------------------------------------------------------------*
- \*    text
+ *    text
  *----------------------------------------------------------------------*
  MODULE EXIT INPUT.
   CASE OK_CODE.
@@ -17,7 +17,7 @@
  *&---------------------------------------------------------------------*
  *&   Module USER_COMMAND_0100 INPUT
  *&---------------------------------------------------------------------*
- \*    text
+ *    text
  *----------------------------------------------------------------------*
  MODULE USER_COMMAND_0100 INPUT.
   CASE OK_CODE.
@@ -30,7 +30,7 @@
  *&---------------------------------------------------------------------*
  *&   Module CHECK_MATCODE INPUT
  *&---------------------------------------------------------------------*
- \*    text
+ *    text
  *----------------------------------------------------------------------*
  MODULE CHECK_MATCODE INPUT.
 
@@ -52,7 +52,7 @@
  *&---------------------------------------------------------------------*
  FORM SCREEN_AMOUNT .
 
- \* 창고명 : SUB_WHCODE1 , SUB_WHCODE2 가 있고
+ * 창고명 : SUB_WHCODE1 , SUB_WHCODE2 가 있고
   SELECT SINGLE A~CURRSTOCK
    FROM ZTBMM0030 AS A
    WHERE A~MATCODE = @ZSBMM0010-MATCODE
@@ -71,8 +71,8 @@
     AND A~WHCODE = @ZSBMM0011-MAIN_WHCODE
    INTO @DATA(LS_STOCK3).
 
- \* 판매오더 진행상태가 0 이고 ( DB View ) 1창고 데이터 들고오기 자재코드와 맞는거
- \* 전부 SUM
+ * 판매오더 진행상태가 0 이고 ( DB View ) 1창고 데이터 들고오기 자재코드와 맞는거
+ * 전부 SUM
   SELECT SUM( A~AMOUNTPRD ) AS AMOUNT
    FROM ZVBMM0011 AS A
    WHERE A~WHCODE = @ZSBMM0011-SUB_WHCODE1
@@ -92,7 +92,7 @@
     AND A~MATCODE = @ZSBMM0010-MATCODE
    INTO @DATA(LT3_SD0030).
 
- \* 값이 음수로 나올 경우 에러 떨어짐
+ * 값이 음수로 나올 경우 에러 떨어짐
   IF LS_STOCK < LT_SD0030 OR LS_STOCK2 < LT2_SD0030 OR LS_STOCK3 < LT3_SD0030.
    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '121'.  " 범위 초과
    RETURN.

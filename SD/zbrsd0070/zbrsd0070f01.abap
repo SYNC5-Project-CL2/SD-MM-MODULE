@@ -346,7 +346,7 @@
  *&---------------------------------------------------------------------*
  FORM GET_DATA_SHP.
 
- \* 출하오더번호에 맞는거
+* 출하오더번호에 맞는거
   DATA : RT_DONUM TYPE RANGE OF ZTBSD0040-DONUM.
 
   IF PA_DONUM IS NOT INITIAL.
@@ -355,7 +355,7 @@
               LOW = PA_DONUM ) ).
   ENDIF.
 
- \* 송장 데이터 꺼내오기, 출고가 완료된거 즉 상태가 3미만인것만
+* 송장 데이터 꺼내오기, 출고가 완료된거 즉 상태가 3미만인것만
   SELECT A~DONUM, A~SONUM, E~BPCODE, B~BPNAME,
      A~EMPID, D~EMPNAME, A~GIDATE, A~GIDATECOMP,
      A~STATUS, A~DODAT, E~STATUS AS SOP_STATUS, I~CURRENCY
@@ -371,7 +371,7 @@
     AND E~STATUS < 3 " 배송시작 전 판매오더들만
    ORDER BY A~STATUS DESCENDING, A~DONUM DESCENDING.
 
- \* 납품처 정보를 위해
+* 납품처 정보를 위해
   SELECT * FROM ZTBSD1060 AS A INTO CORRESPONDING FIELDS OF TABLE @GT_ZTBSD1060.
 
   PERFORM SUBRC USING '조회'.
@@ -393,23 +393,23 @@
 
   LOOP AT GT_ALV_ZTBSD0040 INTO GS_ALV_ZTBSD0040.
 
- \*  CHECK BOX 넣기
+*  CHECK BOX 넣기
    DATA LS_STYLE TYPE LVC_S_STYL.
    LS_STYLE-FIELDNAME = 'CHECK'.
 
- \*  출고여부
+*  출고여부
    GS_ALV_ZTBSD0040-EXCP = '1'. " RED 미완료
    LS_STYLE-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_DISABLED.
 
    IF GS_ALV_ZTBSD0040-STATUS = 1. " 완료상태라면
     GS_ALV_ZTBSD0040-EXCP = '3'. " GREEN
- \*   CHECK BOX도 넣어주자
+*   CHECK BOX도 넣어주자
     LS_STYLE-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_ENABLED.
    ENDIF.
 
    INSERT LS_STYLE INTO TABLE GS_ALV_ZTBSD0040-STTAB.
 
- \*  FIXED VALUE 값 넣기
+*  FIXED VALUE 값 넣기
    DATA LS_STATUS TYPE CHAR1.
 
    PERFORM GET_DOMAIN_VAL TABLES GT_FX_SOPSTATUS USING 'ZDB_SOSTATUS'. " 판매오더 진행상태 Fixed Value.
@@ -418,7 +418,7 @@
    READ TABLE GT_FX_SOPSTATUS WITH KEY DOMVALUE_L = LS_STATUS INTO DATA(LS_SOPSTATUS).
    GS_ALV_ZTBSD0040-SOP_STATUS_TXT = LS_SOPSTATUS-DDTEXT.
 
- \*  납품처 정보 넣기
+*  납품처 정보 넣기
    READ TABLE GT_ZTBSD1060 WITH KEY BPCODE = GS_ALV_ZTBSD0040-BPCODE INTO DATA(LS_SUPDOCE).
    GS_ALV_ZTBSD0040-SUPCODE = LS_SUPDOCE-SUPCODE.
 
@@ -440,7 +440,7 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM GET_DATA_DEL TABLES RT_DONUM.
- \* 배송 데이터 꺼내오기
+* 배송 데이터 꺼내오기
   SELECT A~DELIVNUM, A~DONUM, A~SONUM, E~BPCODE, B~BPNAME,
      A~EMPID, D~EMPNAME, A~DELIVCO, A~DELIVFEE, A~TRANSPORT,
      A~DELIVSDAT, A~CURRENCY, A~DELIVFDAT, A~STATUS
@@ -472,13 +472,13 @@
 
   LOOP AT GT_ALV_ZTBSD0060 INTO GS_ALV_ZTBSD0060.
 
- \*  대금청구생성상태 값
+*  대금청구생성상태 값
    GS_ALV_ZTBSD0060-EXCP = '1'.   " 대금청구생성전 이라면 RED
    IF GS_ALV_ZTBSD0060-STATUS = 'B'.  " 대금청구생성완료 라면
     GS_ALV_ZTBSD0060-EXCP = '3'. " GREEN
    ENDIF.
 
- \*  FIXED VALUE 값 넣기
+*  FIXED VALUE 값 넣기
    DATA : LT_FX_TRANSPORT TYPE STANDARD TABLE OF DD07V,  " 배송방법 Fixed Value
       LS_STATUS    TYPE CHAR1.
 
@@ -558,7 +558,7 @@
 
   DATA: LT_ZTBSD0040 LIKE TABLE OF GS_ALV_ZTBSD0040.
 
- \*  CHECK = 'X'인 값 가져오기.
+*  CHECK = 'X'인 값 가져오기.
   LOOP AT GT_ALV_ZTBSD0040 INTO GS_ALV_ZTBSD0040 WHERE ( CHECK = 'X' ).
    APPEND GS_ALV_ZTBSD0040 TO LT_ZTBSD0040.
   ENDLOOP.
@@ -568,7 +568,7 @@
    RETURN.
   ENDIF.
 
- \* 생성 하겠냐는 컨펌창 띄우기
+* 생성 하겠냐는 컨펌창 띄우기
   PERFORM CON_POPUP USING '생성' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -576,17 +576,17 @@
    CLEAR : GS_ALV_ZTBSD0060.
    MOVE-CORRESPONDING LS_ZTBSD0040 TO GS_ALV_ZTBSD0060.
 
- \*  Number Range 생성해보자
+*  Number Range 생성해보자
    DATA LV_NUM TYPE CHAR10.
    PERFORM GET_NUMBER_RANGE CHANGING LV_NUM.
 
- \*  사원ID 가져오기
+*  사원ID 가져오기
    PERFORM GET_EMPID.
 
- \*  해외일 경우 SHIP (2) , 아니면 전부 트럭 (1)
- \*  미국, 독일 : TRANSPORT 2 , CURRENCY 2,000,000, 배송완료일 +3
- \*  중국 : TRANSPORT 2 , CURRENCY 1,000,000, 배송완료일 +2
- \*  국내 : TRANSPORT 1 , CURRENCY 500,000, 배송완료일 +1
+*  해외일 경우 SHIP (2) , 아니면 전부 트럭 (1)
+*  미국, 독일 : TRANSPORT 2 , CURRENCY 2,000,000, 배송완료일 +3
+*  중국 : TRANSPORT 2 , CURRENCY 1,000,000, 배송완료일 +2
+*  국내 : TRANSPORT 1 , CURRENCY 500,000, 배송완료일 +1
 
    DATA: EXTERNAL LIKE BAPICURR-BAPICURR.
 

@@ -10,14 +10,14 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM GET_DATA USING P_TYPE.
- \* BP MASTER READ 조회하기
+* BP MASTER READ 조회하기
 
- \* 검색 조건 3개 스크린페인터에서 가져오기
+* 검색 조건 3개 스크린페인터에서 가져오기
   DATA: LT_BPCODE  TYPE RANGE OF ZSSD1050-BPCODE,
      LT_BPTCODE TYPE RANGE OF ZSSD1050-BPTCODE,
      LT_CTRYCODE TYPE RANGE OF ZSSD1050-CTRYCODE.
 
- \* where in으로 데이터 조건절 검색
+* where in으로 데이터 조건절 검색
   IF ZSSD1050-BPCODE IS NOT INITIAL.
    LT_BPCODE = VALUE #( ( SIGN = 'I'
                OPTION = 'EQ'
@@ -36,7 +36,7 @@
                 LOW = ZSSD1050-CTRYCODE ) ).
   ENDIF.
 
- \* 라디오 버튼 삭제 플래그 조건절 디폴트 : VALID
+* 라디오 버튼 삭제 플래그 조건절 디폴트 : VALID
   DATA LV_DEL TYPE CHAR1 VALUE '%'.
 
   IF ZSSD1050-VALID = ABAP_TRUE.
@@ -49,8 +49,8 @@
    REFRESH GT_BPDATA.
    APPEND GS_BPDATA TO GT_BPDATA.
   ELSE.
- \*  CDS View를 생성해서 넣어줌
- \*  BP코드를 내림차순으로 정렬 후 조회한다.
+*  CDS View를 생성해서 넣어줌
+*  BP코드를 내림차순으로 정렬 후 조회한다.
    SELECT *
     FROM ZCDS_BP
     INTO CORRESPONDING FIELDS OF TABLE @GT_BPDATA
@@ -71,19 +71,19 @@
  *&---------------------------------------------------------------------*
  *& --> p1    text
  *& <-- p2    text
- \* BP코드 생성하기
+* BP코드 생성하기
  *&---------------------------------------------------------------------*
  FORM CREATE_BP.
 
   DATA LV_NUM TYPE CHAR10.
 
- \* NUMBER RANGE 완성
+* NUMBER RANGE 완성
   PERFORM GET_NUMBER_RANGE CHANGING LV_NUM.
 
- \* 데이터 INSERT 시키기
+* 데이터 INSERT 시키기
   ZSBSD50-BPCODE = |BP{ LV_NUM }|.
 
- \* TIME STAMP 형식 데이터 넣어주기
+* TIME STAMP 형식 데이터 넣어주기
   PERFORM ADD_USERID.
   ZSBSD50-STAMP_USER_F = GS_ZTBSD1030-EMPID.
   ZSBSD50-STAMP_DATE_F = SY-DATUM.
@@ -92,7 +92,7 @@
 
   MOVE-CORRESPONDING ZSBSD50 TO GS_BPDATA.
 
- \* 생성 하겠냐는 컨펌창 띄우기
+* 생성 하겠냐는 컨펌창 띄우기
   PERFORM CON_POPUP USING '생성' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -100,7 +100,7 @@
   MOVE-CORRESPONDING GS_BPDATA TO GS_ZTBSD1051.
   GS_ZTBSD1051-SPARS = SY-LANGU.
 
- \* 정규표현식으로 사업자 번호 확인하기
+* 정규표현식으로 사업자 번호 확인하기
   DATA : V_PATTERN TYPE STRING,
      LV_SUCCESS TYPE C.
   V_PATTERN = '^\d{3}-\d{2}-\d{5}$'.
@@ -157,13 +157,13 @@
    IMPORTING
     ET_ROW_NO = GT_ROW.
 
- \* 만약 행을 선택하지 않고 수정 버튼을 누른다면 경고창
+* 만약 행을 선택하지 않고 수정 버튼을 누른다면 경고창
   IF GT_ROW IS INITIAL.
    PERFORM POPUP_MSG USING 'ROW'.
    RETURN.
   ENDIF.
 
- \* 선택한 행에 맞는 데이터 들고와서 수정 팝업창에 띄우기
+* 선택한 행에 맞는 데이터 들고와서 수정 팝업창에 띄우기
   READ TABLE GT_ROW INTO GS_ROW INDEX 1.
   READ TABLE GT_BPDATA INTO GS_BPDATA INDEX GS_ROW-ROW_ID.
 
@@ -171,7 +171,7 @@
 
   MOVE-CORRESPONDING GS_BPDATA TO ZSBSD50.
 
- \*  만약 이미 삭제된 데이터라면 RETURN.
+*  만약 이미 삭제된 데이터라면 RETURN.
   IF GS_BPDATA-DELFLG = 'X'.
    PERFORM POPUP_MSG USING 'DELETE'.
    RETURN.
@@ -206,7 +206,7 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM RESET .
- \* 새로고침 버튼을 누르면 ALV 화면도 초기화 , 라디오 버튼 및 입력필드도 초기화 시킨다.
+* 새로고침 버튼을 누르면 ALV 화면도 초기화 , 라디오 버튼 및 입력필드도 초기화 시킨다.
   CLEAR: GT_BPDATA, ZSSD1050.
   PERFORM RADIO_RESET.
  ENDFORM.
@@ -288,7 +288,7 @@
    IMPORTING
     ET_ROW_NO = GT_ROW.
 
- \* 만약 행을 선택하지 않고 삭제 버튼을 누른다면 경고창
+* 만약 행을 선택하지 않고 삭제 버튼을 누른다면 경고창
   IF GT_ROW IS INITIAL.
    PERFORM POPUP_MSG USING 'ROW'.
    RETURN.
@@ -298,13 +298,13 @@
   READ TABLE GT_BPDATA INTO GS_BPDATA INDEX GS_ROW-ROW_ID.
   MOVE-CORRESPONDING GS_BPDATA TO ZSBSD50.
 
- \* 만약 이미 삭제된 데이터라면 RETURN.
+* 만약 이미 삭제된 데이터라면 RETURN.
   IF GS_BPDATA-DELFLG = 'X'.
    PERFORM POPUP_MSG USING 'DELETE'.
    RETURN.
   ENDIF.
 
- \* 삭제 하겠냐는 컨펌 팝업창 생성
+* 삭제 하겠냐는 컨펌 팝업창 생성
   PERFORM CON_POPUP USING '삭제' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -321,7 +321,7 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM UPDATE_BP .
- \* 1. 해당 데이터를 수정할거냐?
+* 1. 해당 데이터를 수정할거냐?
   PERFORM CON_POPUP USING '수정' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -336,7 +336,7 @@
  *&   --> P_
  *&---------------------------------------------------------------------*
  FORM UPDATE_DATA USING P_TYPE.
- \* USER ID 가져오기
+* USER ID 가져오기
   PERFORM ADD_USERID.
   ZSBSD50-STAMP_USER_L = GS_ZTBSD1030-EMPID.
   ZSBSD50-STAMP_DATE_L = SY-DATUM.

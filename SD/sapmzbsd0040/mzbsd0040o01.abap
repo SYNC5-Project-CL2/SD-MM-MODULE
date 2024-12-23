@@ -61,11 +61,11 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM SET_ALV_DISPLAY_0100 .
- \* ZTBMM1010 에서 MATTYPE이 C (완제품)인 것만 가져와서 담는다.
+* ZTBMM1010 에서 MATTYPE이 C (완제품)인 것만 가져와서 담는다.
 
   CALL METHOD GO_ALV->SET_TABLE_FOR_FIRST_DISPLAY
    EXPORTING
- \*    Local Structure는 올 수 없다.
+*    Local Structure는 올 수 없다.
     I_STRUCTURE_NAME = 'ZTBSD0011'      " Internal Output Table Structure Name
     IS_LAYOUT    = GS_LAYOUT
    CHANGING
@@ -100,7 +100,7 @@
  FORM SET_ALV_DISPLAY2_0100 .
   CALL METHOD GO_ALV2->SET_TABLE_FOR_FIRST_DISPLAY
    EXPORTING
- \*    Local Structure는 올 수 없다.
+*    Local Structure는 올 수 없다.
     I_STRUCTURE_NAME = 'ZTBSD0010'      " Internal Output Table Structure Name
     IS_LAYOUT    = GS_LAYOUT2
    CHANGING

@@ -28,7 +28,7 @@
              LOW = PA_CTRY ) ).
   ENDIF.
 
- \* 라디오 버튼 적용시키기
+* 라디오 버튼 적용시키기
   LV_WHERE = |A~DELFLG <> 'X'|.
 
   IF ALL = 'X'.
@@ -54,7 +54,7 @@
 
  
 
- \* 담당자명을 넣기 위해서
+* 담당자명을 넣기 위해서
   REFRESH GT_ZTBSD1030.
   SELECT * FROM ZTBSD1030 INTO TABLE GT_ZTBSD1030.
 
@@ -219,14 +219,14 @@
  *&---------------------------------------------------------------------*
  FORM CREATE.
 
- \* 생성해보자
+* 생성해보자
   MOVE-CORRESPONDING ZSSD0080 TO GS_ALV_ZTBSD0080.
   GS_ALV_ZTBSD0080-PRICE = PRICE.
 
   PERFORM GET_EMPID.
   GS_ALV_ZTBSD0080-DELFLG = ''.
 
- \* 만약에 생성이면 최종 생성 시간을 , 아니면 수정 시간을 넣어야 한다
+* 만약에 생성이면 최종 생성 시간을 , 아니면 수정 시간을 넣어야 한다
   SELECT SINGLE *
    FROM ZTBSD0080 AS A
    WHERE A~MATCODE = @GS_ALV_ZTBSD0080-MATCODE
@@ -260,7 +260,7 @@
   MODIFY ZTBSD0080 FROM ZTBSD0080.
   PERFORM ALV_REFRESH.
 
- \* 생성 된 데이터만 보여주자
+* 생성 된 데이터만 보여주자
   PERFORM GET_DATA USING 'CREATE'.
 
   PERFORM ERROR USING '생성'.
@@ -317,7 +317,7 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM CHECK_CREATE .
- \* 생성 하겠냐는 컨펌창 띄우기
+* 생성 하겠냐는 컨펌창 띄우기
   PERFORM CON_POPUP USING '생성' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
   CALL SCREEN 110
@@ -354,7 +354,7 @@
    IMPORTING
     ET_ROW_NO = GT_ROW.
 
- \* 만약 행을 선택하지 않고 삭제 버튼을 누른다면 경고창
+* 만약 행을 선택하지 않고 삭제 버튼을 누른다면 경고창
   IF GT_ROW IS INITIAL.
    MESSAGE S008 DISPLAY LIKE 'E'.
    RETURN.
@@ -363,13 +363,13 @@
   READ TABLE GT_ROW INTO GS_ROW INDEX 1.
   READ TABLE GT_ALV_ZTBSD0080 INTO GS_ALV_ZTBSD0080 INDEX GS_ROW-ROW_ID.
 
- \* 만약 이미 삭제된 데이터라면 RETURN.
+* 만약 이미 삭제된 데이터라면 RETURN.
   IF GS_ALV_ZTBSD0080-DELFLG = 'X'.
    MESSAGE S014 DISPLAY LIKE 'E'.
    RETURN.
   ENDIF.
 
- \* 삭제/수정 하겠냐는 컨펌 팝업창 생성
+* 삭제/수정 하겠냐는 컨펌 팝업창 생성
   PERFORM CON_POPUP USING P_VALUE CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -393,7 +393,7 @@
   IF P_VALUE = '삭제'.
    GS_ALV_ZTBSD0080-DELFLG = 'X'.
   ELSE.
- \*  정규표현식으로 단가 확인하기
+*  정규표현식으로 단가 확인하기
    DATA: EXTERNAL  LIKE BAPICURR-BAPICURR,
       LV_SUCCESS TYPE C,
       V_PATTERN TYPE STRING.
@@ -411,7 +411,7 @@
     RETURN.
    ENDIF.
 
- \*  다 통과되면 시작
+*  다 통과되면 시작
    EXTERNAL = PRICE.
    IF ZSSD0080-CURRENCY = 'KRW'.
     PERFORM CAL_CURR CHANGING EXTERNAL.

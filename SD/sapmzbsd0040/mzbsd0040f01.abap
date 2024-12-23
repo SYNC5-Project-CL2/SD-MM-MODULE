@@ -8,11 +8,11 @@
  *& <-- p2    text
  *&---------------------------------------------------------------------*
  FORM SET_LIST_BOX.
- \* DB에 있는 연도 중복 제거 후 가져오기
+* DB에 있는 연도 중복 제거 후 가져오기
   DATA : LT_DROPLIST TYPE VRM_VALUES,
      LS_DROPLIST TYPE VRM_VALUE.
 
- \* APPEND는 스택임
+* APPEND는 스택임
   SELECT DISTINCT
    SALESYEAR AS KEY,
    SALESYEAR AS TEXT
@@ -72,24 +72,24 @@
   DATA: YAER_TODAY TYPE N LENGTH 4, " 기준 연도
      YEAR_CALC TYPE N LENGTH 4.
 
- \*  사실 판매계획연도 생성은 내년것만 가능하다
+*  사실 판매계획연도 생성은 내년것만 가능하다
   YAER_TODAY = SY-DATUM+0(4) + 1.
 
- \* 만약 이미 내년 판매계획이 최종승인되어 있다면 내후년 계획을 세우도록 한다. 최종승인된 계획이 있는지 본다
+* 만약 이미 내년 판매계획이 최종승인되어 있다면 내후년 계획을 세우도록 한다. 최종승인된 계획이 있는지 본다
   SELECT COUNT(*) FROM ZTBSD0010 AS A WHERE A~SALESYEAR EQ @YAER_TODAY AND A~APPR EQ 2 INTO @DATA(LS_ZCOUNT).
 
   YEAR_CALC = YAER_TODAY.
- \* 내년 계획이 이미 있어요
+* 내년 계획이 이미 있어요
   IF LS_ZCOUNT NE 0.
    YEAR_CALC = YAER_TODAY + 1.
   ENDIF.
 
- \*  1. 저번 판매계획수량을 가지고 온다.
+*  1. 저번 판매계획수량을 가지고 온다.
   PERFORM GET_MATDATA USING YAER_TODAY.
 
   REFRESH GT_ZTBSD0011.
 
- \* 국가코드를 이용해 국가명 가져오기
+* 국가코드를 이용해 국가명 가져오기
   SELECT SINGLE CTRYCODE, CTRYNAME FROM ZTBSD1040
    WHERE CTRYCODE = @ZTBSD0010-CTRYCODE INTO @DATA(LT_CTRY).
 
@@ -98,15 +98,15 @@
    GS_ZTBSD0011-SOPNUM = SOPNUM.
    GS_ZTBSD0011-CTRYNAME = LT_CTRY-CTRYNAME.
 
- \*   전년도 수량 * 1.01
+*   전년도 수량 * 1.01
    GS_MATDATA-AMOUNTPRD = CEIL( GS_MATDATA-AMOUNTPRD * AMOUNT_CS ).
 
- \*  제품 유형 타입 구해오기
+*  제품 유형 타입 구해오기
    SELECT SINGLE * FROM ZTBMM1010 AS A
     WHERE A~MATCODE = @GS_MATDATA-MATCODE
     INTO @DATA(LS_MM).
 
- \*  판매수량 제한 걸기
+*  판매수량 제한 걸기
    PERFORM MAX_SOPAMOUN_CHECK USING LS_MM-PRODTYPE CHANGING GS_MATDATA-AMOUNTPRD.
 
    MOVE-CORRESPONDING GS_MATDATA TO GS_ZTBSD0011.
@@ -136,7 +136,7 @@
  *&---------------------------------------------------------------------*
  FORM SET_DATA_HEADER.
 
- \* 국가코드를 이용해 국가명 가져오기
+* 국가코드를 이용해 국가명 가져오기
   SELECT SINGLE CTRYCODE, CTRYNAME FROM ZTBSD1040
    WHERE CTRYCODE = @ZTBSD0010-CTRYCODE INTO @DATA(LT_CTRY).
 
@@ -194,18 +194,18 @@
  FORM SOP_PLAN .
   PERFORM RESET.
 
- \* 필수값 입력 안했으면 경고창 띄워
+* 필수값 입력 안했으면 경고창 띄워
   IF ZTBSD0010-CTRYCODE IS INITIAL.
    PERFORM MESSAGE_INFO USING 'REQ'.
    RETURN.
   ENDIF.
 
- \* 내년 계획 세우기
+* 내년 계획 세우기
   DATA: YEAR_CALC TYPE N LENGTH 4.
 
   YEAR_CALC = SY-DATUM+0(4) + 1.
  *
- \* 만약 이미 내년 판매계획이 최종승인되어 있다면 내후년 계획을 세우도록 한다
+* 만약 이미 내년 판매계획이 최종승인되어 있다면 내후년 계획을 세우도록 한다
   SELECT COUNT(*) FROM ZTBSD0010 AS A WHERE A~SALESYEAR EQ @YEAR_CALC AND A~APPR EQ 2 INTO @DATA(LS_ZCOUNT).
 
   IF LS_ZCOUNT <> 0.
@@ -213,11 +213,11 @@
    MESSAGE ID 'ZCOMMON_MSG' TYPE 'I' NUMBER '126'.
   ENDIF.
 
- \* Number Range 생성해보자
+* Number Range 생성해보자
   DATA LV_NUM TYPE CHAR10.
   PERFORM GET_NUMBER_RANGE USING 'ZBBSD0010' CHANGING LV_NUM.
 
- \* 이미 생산이 진행중이면 리턴 및 판매계획 APPE 상태 2 최종승인으로 업데이트
+* 이미 생산이 진행중이면 리턴 및 판매계획 APPE 상태 2 최종승인으로 업데이트
   SELECT COUNT(*)
    FROM ZTBSD0010 AS A
    WHERE A~STATUS = 1
@@ -236,7 +236,7 @@
    RETURN.
   ENDIF.
 
- \* TODO. 그냥 빈 테이블 생성 함.
+* TODO. 그냥 빈 테이블 생성 함.
   SELECT A~SOPNUM, A~SALESYEAR, A~SOPDATE, A~EMPID, B~AMOUNTPRD, B~UNITCODE, B~MATCODE, B~CTRYCODE
    FROM ZTBSD0010 AS A JOIN ZTBSD0011 AS B ON A~SOPNUM = B~SOPNUM
    INTO TABLE @DATA(LT_SOP).
@@ -246,7 +246,7 @@
   REFRESH LT_SOP.
   DATA LS_SOP LIKE LINE OF LT_SOP.
 
- \* 리스트박스에 내년 연도 넣어주기
+* 리스트박스에 내년 연도 넣어주기
   GV_LIST = YEAR_CALC.
 
   PERFORM GET_EMPID.
@@ -257,11 +257,11 @@
   LS_SOP-EMPID = GS_ZTBSD1030-EMPID.
   LS_SOP-CTRYCODE = ZTBSD0010-CTRYCODE.
 
- \* 판매운영계획 Header insert 부분
+* 판매운영계획 Header insert 부분
   MOVE-CORRESPONDING LS_SOP TO GS_ZTBSD0010.
   APPEND GS_ZTBSD0010 TO GT_ZTBSD0010.
 
- \* 판매운영계획 ITEM 넣는 부분
+* 판매운영계획 ITEM 넣는 부분
   PERFORM SET_DATA_PROD USING LS_SOP-SOPNUM.
 
   CLEAR : LS_SOP.
@@ -317,12 +317,12 @@
   DATA : LS_ZTBSD0011 TYPE ZTBSD0011,
      LT_ZTBSD0011 TYPE TABLE OF ZTBSD0011.
 
- \* 전년도를 구해야 하기에 -1
+* 전년도를 구해야 하기에 -1
   YEAR -= 1.
 
- \* 자재마스터에 있는 완제품(C)을 모두 가져온다 (ZTBMM1010)
- \* 자재마스터 이름을 가지고 온다 (ZTBMM1011)
- \* 판매운영계획에서 전년도 판매수량을 가지고 온다 ( 조건 : 생성하려는 국가(ZTBSD0010-CTRYCODE), 전년도 )
+* 자재마스터에 있는 완제품(C)을 모두 가져온다 (ZTBMM1010)
+* 자재마스터 이름을 가지고 온다 (ZTBMM1011)
+* 판매운영계획에서 전년도 판매수량을 가지고 온다 ( 조건 : 생성하려는 국가(ZTBSD0010-CTRYCODE), 전년도 )
   SELECT DISTINCT D~SALESYEAR, C~MATCODE, B~MATNAME, C~AMOUNTPRD, A~PRODTYPE, C~CTRYCODE
    FROM ZTBMM1010 AS A
    INNER JOIN ZTBMM1011 AS B ON A~MATCODE EQ B~MATCODE
@@ -348,14 +348,14 @@
  FORM SOP_READ.
   PERFORM RESET.
 
- \* 필수값 입력 안했으면 경고창 띄워
+* 필수값 입력 안했으면 경고창 띄워
   IF GV_LIST IS INITIAL.
    PERFORM MESSAGE_INFO USING 'REQ'.
    RETURN.
   ENDIF.
 
- \* 연도에 맞는 데이터 끌고 오기 판매운영계획 Header
- \* 승인된거 먼저 보여주고 다음에 SOPNUM 내림차순으로
+* 연도에 맞는 데이터 끌고 오기 판매운영계획 Header
+* 승인된거 먼저 보여주고 다음에 SOPNUM 내림차순으로
   SELECT A~SOPNUM, A~CTRYCODE, A~SALESYEAR, A~EMPID, A~APPR,
      A~STATUS, A~REJREASON, A~SOPDATE, B~CTRYNAME, C~EMPNAME
    FROM ZTBSD0010 AS A
@@ -382,13 +382,13 @@
  *&---------------------------------------------------------------------*
  FORM ON_DOUBLE_CLICK USING P_ROW_NO TYPE LVC_S_ROID.
 
- \* 조회 탭이면 그냥 무시
+* 조회 탭이면 그냥 무시
   CHECK G_TABSTRIP-ACTIVETAB = 'TAB_R'.
 
- \* 더블클릭한 헤더 INDEX 이용해서데이터 가져오기 ( 판매운영계획 ITEM )
+* 더블클릭한 헤더 INDEX 이용해서데이터 가져오기 ( 판매운영계획 ITEM )
   READ TABLE GT_ZTBSD0010 INTO GS_ZTBSD0010 INDEX P_ROW_NO-ROW_ID.
 
- \* 자재명도 가져오기
+* 자재명도 가져오기
   SELECT A~SOPNUM, A~CTRYCODE, A~MATCODE, B~MATNAME, A~AMOUNTPRD,
      A~UNITCODE, C~CTRYNAME, A~SALESYR
    FROM ZTBSD0011 AS A JOIN ZTBMM1011 AS B ON A~MATCODE = B~MATCODE
@@ -405,7 +405,7 @@
 
   PERFORM ERROR USING 'SELECT'.
 
- \*  ALV1 ITEM 부분만 새로고침
+*  ALV1 ITEM 부분만 새로고침
   DATA LS_STABLE TYPE LVC_S_STBL.
   CALL METHOD GO_ALV->REFRESH_TABLE_DISPLAY
    EXPORTING
@@ -600,7 +600,7 @@
   LOOP AT GT_ZTBSD0010 INTO GS_ZTBSD0010.
    DATA LS_STYLE TYPE LVC_S_STYL.
 
- \*   신호등 UPDATE APPE 상신여부 0 미승인, 1 승인, 2 최종승인
+*   신호등 UPDATE APPE 상신여부 0 미승인, 1 승인, 2 최종승인
    IF GS_ZTBSD0010-APPR = 1.
     GS_ZTBSD0010-EXCP = '2'.
    ELSEIF GS_ZTBSD0010-APPR = 2.
@@ -609,21 +609,21 @@
     GS_ZTBSD0010-EXCP = '1'. " RED
    ENDIF.
 
- \*  진행 상태 STATUS 필요/진행중/취소/중단/완료
- \*   DOMVALUE_L TYPE이 C 임
+*  진행 상태 STATUS 필요/진행중/취소/중단/완료
+*   DOMVALUE_L TYPE이 C 임
    DATA : LS_STATUS TYPE CHAR1,
       GT_DD07V TYPE STANDARD TABLE OF DD07V.  " Fixed Value 가져오기 위함
 
- \*  Fixed Value 가져오기
+*  Fixed Value 가져오기
    PERFORM GET_DOMAIN_VAL TABLES GT_DD07V.
 
    LS_STATUS = GS_ZTBSD0010-STATUS.
 
    READ TABLE GT_DD07V WITH KEY DOMVALUE_L = LS_STATUS INTO DATA(LS_DD07V).
- \*   Fixed Value 값 넣기
+*   Fixed Value 값 넣기
    GS_ZTBSD0010-SOP_STATUS_TXT = LS_DD07V-DDTEXT.
 
- \* APPR이 1일 경우에만 체크박스 활성화
+* APPR이 1일 경우에만 체크박스 활성화
    LS_STYLE-FIELDNAME = 'CHECK'.
    IF GS_ZTBSD0010-APPR = 1.
     LS_STYLE-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_ENABLED.
@@ -634,7 +634,7 @@
 
    CLEAR LS_STYLE.
 
- \*  반려사유가 있다면 버튼 아이콘 넣기
+*  반려사유가 있다면 버튼 아이콘 넣기
    LS_STYLE-FIELDNAME = 'REJREASON'.
    IF GS_ZTBSD0010-REJREASON IS NOT INITIAL.
     LS_STYLE-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_BUTTON.
@@ -691,7 +691,7 @@
  *&   --> ES_ROW_NO
  *&---------------------------------------------------------------------*
  FORM ON_BUTTON_CLICK USING P_ROW_NO TYPE LVC_S_ROID.
- \* IDX로 데이터 가져오기
+* IDX로 데이터 가져오기
   READ TABLE GT_ZTBSD0010 INTO GS_ZTBSD0010 INDEX P_ROW_NO-ROW_ID.
 
   SELECT SINGLE A~REJREASON
@@ -752,18 +752,18 @@
  *&---------------------------------------------------------------------*
  FORM CREATE.
 
- \*  판매계획 생성 버튼 클릭, TAB이 잘못 와 있다면 돌려놓기
+*  판매계획 생성 버튼 클릭, TAB이 잘못 와 있다면 돌려놓기
   IF G_TABSTRIP-ACTIVETAB <> 'TAB_C'.
    G_TABSTRIP-ACTIVETAB = 'TAB_C'.
   ENDIF.
 
- \*  필수값 입력 안했으면 경고창 띄워
+*  필수값 입력 안했으면 경고창 띄워
   IF ZTBSD0010-CTRYCODE IS INITIAL.
    PERFORM MESSAGE_INFO USING 'REQ'.
    RETURN.
   ENDIF.
 
- \* 계획 세우기를 하지 않았다면 경고
+* 계획 세우기를 하지 않았다면 경고
   DATA LS_CHECK_CTRYCODE TYPE ZTBSD0011-CTRYCODE.
   LOOP AT GT_ZTBSD0011 INTO GS_ZTBSD0011 FROM 1.
    LS_CHECK_CTRYCODE = GS_ZTBSD0011-CTRYCODE .
@@ -775,7 +775,7 @@
    RETURN.
   ENDIF.
 
- \* 생성 하겠냐는 컨펌창 띄우기
+* 생성 하겠냐는 컨펌창 띄우기
   PERFORM CON_POPUP USING '생성' CHANGING LV_ANSWER.
   CHECK LV_ANSWER = '1'.
 
@@ -784,13 +784,13 @@
    RETURN.
   ENDIF.
 
- \* 판매운영계획 Header 넣기
+* 판매운영계획 Header 넣기
   LOOP AT GT_ZTBSD0010 INTO GS_ZTBSD0010.
    MOVE-CORRESPONDING GS_ZTBSD0010 TO ZTBSD0010.
    INSERT ZTBSD0010 FROM ZTBSD0010.
   ENDLOOP.
 
- \* 판매운영계획 Item 넣기
+* 판매운영계획 Item 넣기
   LOOP AT GT_ZTBSD0011 INTO GS_ZTBSD0011.
    MOVE-CORRESPONDING GS_ZTBSD0011 TO ZTBSD0011.
    INSERT ZTBSD0011 FROM ZTBSD0011.
@@ -819,11 +819,11 @@
  *&   --> LS_MODI_ROW_ID
  *&---------------------------------------------------------------------*
  FORM ALV_ITEM USING LS_MODI_ROW_ID.
- \* 더블클릭한 헤더 INDEX 이용해서데이터 가져오기 ( 판매운영계획 ITEM )
+* 더블클릭한 헤더 INDEX 이용해서데이터 가져오기 ( 판매운영계획 ITEM )
   REFRESH GT_ZTBSD0011.
   READ TABLE GT_ZTBSD0010 INTO GS_ZTBSD0010 INDEX LS_MODI_ROW_ID.
 
- \* 자재명도 가져오기
+* 자재명도 가져오기
   SELECT A~SOPNUM, A~CTRYCODE, A~MATCODE, B~MATNAME, A~AMOUNTPRD, A~UNITCODE, C~CTRYNAME
    FROM ZTBSD0011 AS A JOIN ZTBMM1011 AS B ON A~MATCODE = B~MATCODE
    JOIN ZTBSD1040 AS C ON A~CTRYCODE = C~CTRYCODE
@@ -853,7 +853,7 @@
    MAX_AMOUNT = MAX_PET / 4.
   ENDIF.
 
- \*  최대 생산량을 넘을 경우 최대 생산량 까지만
+*  최대 생산량을 넘을 경우 최대 생산량 까지만
   IF GS_MATDATA-AMOUNTPRD > MAX_AMOUNT.
    GS_MATDATA-AMOUNTPRD = MAX_AMOUNT.
   ENDIF.
@@ -944,12 +944,12 @@
      YEARS    TYPE N LENGTH 4,
      LV_NUM    TYPE N.
 
- \* CHECK = 'X'인 값 가져오기
+* CHECK = 'X'인 값 가져오기
   LOOP AT GT_ZTBSD0010 INTO GS_ZTBSD0010 WHERE ( CHECK = ABAP_TRUE ).
    APPEND GS_ZTBSD0010 TO LT_ZTBSD0010.
   ENDLOOP.
 
- \* 이미 APPR이 2 라면 RETURN
+* 이미 APPR이 2 라면 RETURN
   LOOP AT LT_ZTBSD0010 INTO DATA(LS_DATA) WHERE ( APPR = 2 ).
    LV_NUM += 1.
   ENDLOOP.
@@ -975,7 +975,7 @@
   READ TABLE LT_ZTBSD0010 INDEX 1 INTO DATA(LS_ONE).
   LV_NUM = 0.
   YEARS = LS_ONE-SALESYEAR.
- \* 연도가 서로 다르지 않은지 확인
+* 연도가 서로 다르지 않은지 확인
   LOOP AT LT_ZTBSD0010 INTO DATA(LS_DATA2).
    IF YEARS NE LS_DATA2-SALESYEAR.
     LV_NUM += 1.
@@ -989,7 +989,7 @@
    RETURN.
   ENDIF.
 
- \*  중복된 국가가 있는지 체크
+*  중복된 국가가 있는지 체크
   LOOP AT LT_ZTBSD0010 ASSIGNING FIELD-SYMBOL(<WA>) GROUP BY ( KEY = <WA>-CTRYCODE
                                 COUNT = GROUP SIZE ) INTO DATA(GROUP).
    IF GROUP-COUNT > 1.
@@ -1003,7 +1003,7 @@
   CHECK LV_ANSWER = '1'.
 
   LOOP AT LT_ZTBSD0010 INTO DATA(LS_HEADER).
- \*  APPR 상태 값 2로 바꾸기
+*  APPR 상태 값 2로 바꾸기
    UPDATE ZTBSD0010 SET APPR = 2 WHERE SOPNUM = LS_HEADER-SOPNUM.
   ENDLOOP.
 

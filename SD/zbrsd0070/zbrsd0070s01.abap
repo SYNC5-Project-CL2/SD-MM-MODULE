@@ -11,7 +11,7 @@
 
   SELECTION-SCREEN END OF BLOCK BLK1.
 
- \* 날짜 DEFAULT 값 넣어주기 ( 한달 )
+* 날짜 DEFAULT 값 넣어주기 ( 한달 )
   PA_DATE = VALUE #( SIGN = 'I'
             OPTION = 'BT'
             HIGH = SY-DATUM
