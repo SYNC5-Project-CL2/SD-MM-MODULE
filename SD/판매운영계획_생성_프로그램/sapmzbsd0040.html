@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>SAPMZBSD0040</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: SAPMZBSD0040</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  판매운영계획 생성 프로그램</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Module Pool      SAPMZBSD0040</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&    [SD]</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&    개발자                : CL2 KDT-B-13 윤소영</font>
+<font color ="#0000FF">*&    프로그램 개요           : 판매운영계획 생성 프로그램</font>
+<font color ="#0000FF">*&    개발 시작일            : 2024.10.31</font>
+<font color ="#0000FF">*&    개발 완료일            : 2024.11.19</font>
+<font color ="#0000FF">*&    개발 상태             : 개발완료</font>
+<font color ="#0000FF">*&    단위테스트 여부</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&  조회는 '피오리' 에서 진행</font>
+<font color ="#0000FF">*&  전년도 대비 판매수량 1% 더해서 수량 자동입력되는 프로세스</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+
+ include <a href ="mzbsd0040top.html">MZBSD0040TOP</a>.    " Global Data
+ include <a href ="mzbsd0040c01.html">MZBSD0040C01</a>.
+ include <a href ="mzbsd0040o01.html">MZBSD0040O01</a>.  " PBO-Modules
+ include <a href ="mzbsd0040i01.html">MZBSD0040I01</a>.  " PAI-Modules
+ include <a href ="mzbsd0040f01.html">MZBSD0040F01</a>.  " FORM-Routines
+
+<font color ="#0000FF">*GUI Texts</font>
+<font color ="#0000FF">*----------------------------------------------------------</font>
+<font color ="#0000FF">* T100 --&gt; 판매운영계획문서 생성 프로그램</font>
+<font color ="#0000FF">* T200 --&gt;</font>
+<font color ="#0000FF">* T100 --&gt; 판매운영계획문서 생성 프로그램</font>
+<font color ="#0000FF">* T200 --&gt;</font>
+
+
+<font color ="#0000FF">*Messages</font>
+<font color ="#0000FF">*----------------------------------------------------------</font>
+<font color ="#0000FF">*</font>
+<font color ="#0000FF">* Message class: ZCOMMON_MSG</font>
+<font color ="#0000FF">*000   필수 입력 값이 누락되었습니다.</font>
+<font color ="#0000FF">*008   행을 먼저 선택해주세요!</font>
+<font color ="#0000FF">*014   이미 삭제된 데이터입니다.</font>
+<font color ="#0000FF">*015   조회 조건에 일치하는 데이터가 없습니다.</font>
+<font color ="#0000FF">*016   에러가 발생했습니다.</font>
+<font color ="#0000FF">*019   데이터가 성공적으로 생성되었습니다.</font>
+<font color ="#0000FF">*023   데이터가 존재하지 않습니다.</font>
+<font color ="#0000FF">*100   &1 메서드에서 문제가 발생했습니다.</font>
+<font color ="#0000FF">*103   이 탭에서는 할 수 없습니다.</font>
+<font color ="#0000FF">*104   수량은 &1EA로 제한되어 있습니다.</font>
+<font color ="#0000FF">*113   판매계획 세우기를 실행해주세요</font>
+<font color ="#0000FF">*114   &1년도의 생산계획이 진행중입니다.</font>
+<font color ="#0000FF">*124   계획 세우기를 먼저 진행해주세요.</font>
+<font color ="#0000FF">*126   내년 계획 문서의 최종승인이 이루어져 내후년 계획을 세웁니다.</font>
+<font color ="#0000FF">*MSG</font>
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 754
+</font>
+</body>
+</html>
