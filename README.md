@@ -9,7 +9,7 @@
 
 |                       이름(담당 모듈)                        | ABPA 프로그램                                                | UI5 프로그램                                                 |
 | :----------------------------------------------------------: | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| **윤소영(SCM)<br><br>[![SoYeong](https://img.shields.io/badge/YUNSO-F77623?style=flat&logo=github&logoColor=black&height:30px)](https://github.com/usern77)** | **⚬ [SD] 판매운영계획 생성 및 조회**<br>**⚬ [MM] 재고 이동**<br>⚬ [SD] 배송문서 생성 프로그램<br/>⚬ [MM] 폐기 처리 배치 프로그램<br/>⚬ [SD] BP 마스터 프로그램<br/>⚬ [SD] 납품처 엑셀 업로드 프로그램<br/>⚬ [SD] 완제품 판매가 마스터 프로그램<br/> | ⚬ [B2B] 판매운영계획 상신 프로그램<br>⚬ [B2B] 월별 판매실적 비교 프로그램<br> |
+| **윤소영(SCM)<br><br>[![SoYeong](https://img.shields.io/badge/YUNSO-F77623?style=flat&logo=github&logoColor=black&height:30px)](https://github.com/usern77)** | **⚬ [SD] 판매운영계획 생성 및 조회**<br>**⚬ [MM] 재고 이동 프로그램**<br>⚬ [SD] 배송문서 생성 프로그램<br/>⚬ [MM] 폐기 처리 배치 프로그램<br/>⚬ [SD] BP 마스터 프로그램<br/>⚬ [SD] 납품처 엑셀 업로드 프로그램<br/>⚬ [SD] 완제품 판매가 마스터 프로그램<br/> | ⚬ [B2B] 판매운영계획 상신 프로그램<br>⚬ [B2B] 월별 판매실적 비교 프로그램<br> |
 
 </div>
 
