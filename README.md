@@ -243,9 +243,11 @@ ENDFORM.
   <img alt="HANA DB" src="https://dbdb.io/media/logos/hana.png" style="height: 30px; background-color: #87CEEB;">
   <br>
   <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+  <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FSYNC5-Project-CL2%2FSD-MM-MODULE&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
   <br>
 
   <img src="https://techstack-generator.vercel.app/github-icon.svg" alt="icon" width="64" height="64" style="background-color:white;">
+
   <br>
 
 </div>
